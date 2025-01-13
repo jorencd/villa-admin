@@ -1,3 +1,16 @@
+<?php
+include '../database/dbconnect.php';
+
+
+// Prepare the SQL query
+$query = "SELECT booking_id, CONCAT(first_name, ' ', last_name) AS user_name, package_type, check_in, check_out, booking_status FROM booking_form WHERE booking_status = 'pending'";
+
+// Execute the query and fetch the results
+$stmt = $pdo->prepare($query);   // Prepare the query
+$stmt->execute();                // Execute the query
+$bookings = $stmt->fetchAll(PDO::FETCH_ASSOC); // Fetch all rows as an associative array
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -65,42 +78,19 @@
                 </tr>
               </thead>
               <tbody>
-                <!-- Row 1 -->
-                <tr>
-                  <td>001</td>
-                  <td>Orlando Dela Cruz</td>
-                  <td>Essential Room</td>
-                  <td>2025-01-15</td>
-                  <td>2025-01-18</td>
-                  <td><span class="badge bg-warning text-dark">Pending</span></td>
-                  <td><a href=" #" class=" btn btn-primary me-1" type="button">Confirm</a> <a href="#"
-                      class=" btn btn-danger" type="button">Delete</a>
-                  </td>
-                </tr>
-                <!-- Row 2 -->
-                <tr>
-                  <td>002</td>
-                  <td>Jorence Mendoza</td>
-                  <td>Deluxe Room</td>
-                  <td>2025-01-20</td>
-                  <td>2025-01-25</td>
-                  <td><span class="badge bg-warning text-dark">Pending</span></td>
-                  <td><a href="#" class=" btn btn-primary me-1" type="button">Confirm</a> <a href="#"
-                      class=" btn btn-danger" type="button">Delete</a>
-                  </td>
-                </tr>
-                <!-- Row 3 -->
-                <tr>
-                  <td>003</td>
-                  <td>Dhennis Nizal</td>
-                  <td>Supreme Room</td>
-                  <td>2025-02-01</td>
-                  <td>2025-02-05</td>
-                  <td><span class="badge bg-warning text-dark">Pending</span></td>
-                  <td><a href="#" class=" btn btn-primary me-1" type="button">Confirm</a> <a href="#"
-                      class=" btn btn-danger" type="button">Delete</a>
-                  </td>
-                </tr>
+                <?php foreach ($bookings as $row) { ?>
+                  <tr>
+                    <td><?php echo $row['booking_id']; ?></td>
+                    <td><?php echo $row['user_name']; ?></td>
+                    <td><?php echo $row['package_type']; ?></td>
+                    <td><?php echo $row['check_in']; ?></td>
+                    <td><?php echo $row['check_out']; ?></td>
+                    <td><span class="badge bg-warning text-dark"><?php echo $row['booking_status']; ?></span></td>
+                    <td><a href="#" class=" btn btn-primary me-1" type="button">Confirm</a> <a href="#"
+                        class=" btn btn-danger" type="button">Delete</a>
+                    </td>
+                  </tr>
+                <?php } ?>
               </tbody>
             </table>
           </div>
@@ -144,3 +134,8 @@
 </body>
 
 </html>
+
+<?php
+// Close the PDO connection
+$pdo = null;
+?>
