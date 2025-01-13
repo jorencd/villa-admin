@@ -1,3 +1,16 @@
+<?php
+include '../database/dbconnect.php';
+
+
+// Prepare the SQL query
+$query = "SELECT booking_id, first_name, last_name, package_type, check_in, check_out, booking_status FROM history";
+
+// Execute the query and fetch the results
+$stmt = $pdo->prepare($query);   // Prepare the query
+$stmt->execute();                // Execute the query
+$bookings = $stmt->fetchAll(PDO::FETCH_ASSOC); // Fetch all rows as an associative array
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -50,7 +63,6 @@
                         <select class="form-select shadow-none w-50" aria-label="Default select example">
                             <option selected>All</option>
                             <option value="1">Completed</option>
-                            <option value="2">Confirmed</option>
                             <option value="3">Cancelled</option>
                         </select>
                     </div>
@@ -61,46 +73,32 @@
                             <thead class="table-dark">
                                 <tr>
                                     <th>Booking ID</th>
-                                    <th>User Name</th>
+                                    <th>First Name</th>
+                                    <th>Last Name</th>
                                     <th>Package Type</th>
-                                    <th>Email Address</th>
-                                    <th>Contact Number</th>
+                                    <th>Check In</th>
+                                    <th>Check Out</th>
                                     <th>Booking Status</th>
+                                    <th>Action</th>
+
 
                                 </tr>
                             </thead>
                             <tbody>
-                                <!-- Row 1 -->
-                                <tr>
-                                    <td>001</td>
-                                    <td>Orlando Dela Cruz</td>
-                                    <td>Essential Room</td>
-                                    <td>delacruzorlando776@gmail.com</td>
-                                    <td>09095984478</td>
-                                    <td><span class="badge bg-danger">Cancelled</span></td>
-
-
-                                </tr>
-                                <!-- Row 2 -->
-                                <tr>
-                                    <td>002</td>
-                                    <td>Jorence Mendoza</td>
-                                    <td>Deluxe Room</td>
-                                    <td>mendozajorence@gmail.com</td>
-                                    <td>09993352150</td>
-                                    <td><span class="badge bg-success">Completed</span></td>
-
-                                </tr>
-                                <!-- Row 3 -->
-                                <tr>
-                                    <td>003</td>
-                                    <td>Dhennis Nizal</td>
-                                    <td>Supreme Room</td>
-                                    <td>dhennisnizal@gmail.com</td>
-                                    <td>09944465816</td>
-                                    <td><span class="badge bg-danger">Cancelled</span></td>
-
-                                </tr>
+                                <?php foreach ($bookings as $row) { ?>
+                                    <tr>
+                                        <td><?php echo $row['booking_id']; ?></td>
+                                        <td><?php echo $row['first_name']; ?></td>
+                                        <td><?php echo $row['last_name']; ?></td>
+                                        <td><?php echo $row['package_type']; ?></td>
+                                        <td><?php echo $row['check_in']; ?></td>
+                                        <td><?php echo $row['check_out']; ?></td>
+                                        <td><span
+                                                class="badge bg-warning text-dark"><?php echo $row['booking_status']; ?></span>
+                                        </td>
+                                        <td><a href="#" class=" btn btn-primary me-1" type="button">Restore</a></td>
+                                    </tr>
+                                <?php } ?>
                             </tbody>
                         </table>
                     </div>
@@ -144,3 +142,8 @@
 </body>
 
 </html>
+
+<?php
+// Close the PDO connection
+$pdo = null;
+?>

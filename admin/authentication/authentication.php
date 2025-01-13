@@ -98,7 +98,7 @@ if (isset($_SESSION['success'])) {
                         <div class="modal fade" id="errorModal" tabindex="-1" aria-labelledby="errorModalLabel"
                             aria-hidden="true">
                             <div class="modal-dialog">
-                                <div class="modal-content bg-danger text-white">
+                                <div class="modal-content bg-light text-danger">
                                     <div class="modal-header">
                                         <h5 class="modal-title" id="errorModalLabel">Error</h5>
                                         <button type="button" class="btn-close" data-bs-dismiss="modal"

@@ -1,3 +1,16 @@
+<?php
+include '../database/dbconnect.php';
+
+
+// Prepare the SQL query
+$query = "SELECT id, first_name, last_name, email FROM users";
+
+// Execute the query and fetch the results
+$stmt = $pdo->prepare($query);   // Prepare the query
+$stmt->execute();                // Execute the query
+$users = $stmt->fetchAll(PDO::FETCH_ASSOC); // Fetch all rows as an associative array
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -54,41 +67,23 @@
                         <table class="table table-hover table-bordered align-middle mb-0">
                             <thead class="table-dark">
                                 <tr>
-                                    <th>Booking ID</th>
-                                    <th>User Name</th>
-                                    <th>Package Type</th>
+                                    <th>User ID</th>
+                                    <th>First Name</th>
+                                    <th>Last Name</th>
                                     <th>Email Address</th>
 
 
                                 </tr>
                             </thead>
                             <tbody>
-                                <!-- Row 1 -->
-                                <tr>
-                                    <td>001</td>
-                                    <td>Orlando Dela Cruz</td>
-                                    <td>Essential Room</td>
-                                    <td>delacruzorlando776@gmail.com</td>
-
-                                </tr>
-                                <!-- Row 2 -->
-                                <tr>
-                                    <td>002</td>
-                                    <td>Jorence Mendoza</td>
-                                    <td>Deluxe Room</td>
-                                    <td>mendozajorence@gmail.com</td>
-
-
-                                </tr>
-                                <!-- Row 3 -->
-                                <tr>
-                                    <td>003</td>
-                                    <td>Dhennis Nizal</td>
-                                    <td>Supreme Room</td>
-                                    <td>dhennisnizal@gmail.com</td>
-
-
-                                </tr>
+                                <?php foreach ($users as $row) { ?>
+                                    <tr>
+                                        <td><?php echo $row['id']; ?></td>
+                                        <td><?php echo $row['first_name']; ?></td>
+                                        <td><?php echo $row['last_name']; ?></td>
+                                        <td><?php echo $row['email']; ?></td>
+                                    </tr>
+                                <?php } ?>
                             </tbody>
                         </table>
                     </div>
@@ -133,3 +128,8 @@
 </body>
 
 </html>
+
+<?php
+// Close the PDO connection
+$pdo = null;
+?>

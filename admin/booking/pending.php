@@ -3,7 +3,7 @@ include '../database/dbconnect.php';
 
 
 // Prepare the SQL query
-$query = "SELECT booking_id, CONCAT(first_name, ' ', last_name) AS user_name, package_type, check_in, check_out, booking_status FROM booking_form WHERE booking_status = 'pending'";
+$query = "SELECT booking_id, first_name, last_name, package_type, check_in, check_out, booking_status FROM booking_form WHERE booking_status = 'pending'";
 
 // Execute the query and fetch the results
 $stmt = $pdo->prepare($query);   // Prepare the query
@@ -69,7 +69,8 @@ $bookings = $stmt->fetchAll(PDO::FETCH_ASSOC); // Fetch all rows as an associati
               <thead class="table-dark">
                 <tr>
                   <th>Booking ID</th>
-                  <th>User Name</th>
+                  <th>First Name</th>
+                  <th>Last Name</th>
                   <th>Package Type</th>
                   <th>Check-in Date</th>
                   <th>Check-out Date</th>
@@ -81,7 +82,8 @@ $bookings = $stmt->fetchAll(PDO::FETCH_ASSOC); // Fetch all rows as an associati
                 <?php foreach ($bookings as $row) { ?>
                   <tr>
                     <td><?php echo $row['booking_id']; ?></td>
-                    <td><?php echo $row['user_name']; ?></td>
+                    <td><?php echo $row['first_name']; ?></td>
+                    <td><?php echo $row['last_name']; ?></td>
                     <td><?php echo $row['package_type']; ?></td>
                     <td><?php echo $row['check_in']; ?></td>
                     <td><?php echo $row['check_out']; ?></td>
