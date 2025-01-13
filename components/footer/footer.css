@@ -1,0 +1,41 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Italiana&family=WindSong:wght@400;500&display=swap');
+
+body {
+    overflow-x: hidden !important;
+    box-sizing: border-box !important;
+    scroll-behavior: smooth !important;
+}
+/* FOOTER */
+.footer {
+  position: relative !important;
+  background: url('../../assets/image/footer.jpg') !important;
+  background-size: cover !important;
+  background-repeat: no-repeat !important;
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: center !important;
+  align-items: center !important;
+}
+
+.footer h5,
+.footer h3,
+.footer p,
+.footer a {
+  letter-spacing: 1px !important;
+}
+
+.footer-head {
+  font-family: "Windsong", cursive !important;
+}
+
+@media screen and (max-width: 576px) {
+  .footer {
+    background-size: cover !important;
+    background-repeat: no-repeat !important;
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: center !important;
+    align-items: center !important;
+    height: 100vh !important;
+  }
+}

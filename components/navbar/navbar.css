@@ -1,0 +1,144 @@
+/* NAVBAR */
+body {
+  overflow-x: hidden !important;
+  box-sizing: border-box !important;
+  scroll-behavior: smooth !important;
+}
+
+/* Default navbar style */
+.navbar {
+  transition: background-color 0.3s ease;
+  background-color: transparent;
+}
+
+/* Style for scrolled navbar */
+.navbar.scrolled {
+  background-color: rgba(0, 0, 0, 0.8);
+}
+
+
+.navbar-brand {
+  font-family: "WindSong", cursive !important;
+  font-weight: 500 !important;
+}
+
+.bi-filter-left {
+  font-size: 40px !important;
+}
+
+.offcanvas {
+  background: rgba(0, 0, 0, 0.5) !important;
+  backdrop-filter: blur(10px) !important;
+}
+
+.offcanvas-title {
+  position: absolute !important;
+  top: 15px !important;
+  left: 150px !important;
+  color: white !important;
+}
+
+.dropdown-menu {
+  background: rgba(0, 0, 0, 0.7) !important;
+  backdrop-filter: blur(10px) !important;
+  border: 0px !important;
+}
+
+.dropdown-menu .dropdown-item {
+  color: white !important;
+}
+
+.dropdown-menu .dropdown-item:hover {
+  background-color: #D3AB8B !important;
+}
+
+form.d-flex {
+  position: relative !important;
+  margin-right: 10px !important;
+  display: flex !important;
+}
+
+form.d-flex .form-control {
+  width: 300px !important;
+  border-radius: 50px !important;
+  margin-left: 20px !important;
+  background-color: transparent !important;
+  border: 1px solid rgba(255, 255, 255, 0.5) !important;
+  color: white !important;
+  caret-color: white !important;
+}
+
+form .btn {
+  position: absolute !important;
+  top: 2px !important;
+  right: 0px !important;
+  border-radius: 50% !important;
+  background: #D3AB8B !important;
+  margin-right: 0px !important;
+  border: 0px !important;
+}
+
+.form-control {
+  background-color: transparent !important;
+  border: 1px solid #ccc !important;
+  color: #000 !important;
+  padding-right: 0px !important;
+  caret-color: white !important;
+}
+
+.form-control::placeholder {
+  color: rgba(255, 255, 255, 0.5) !important;
+  opacity: 0.5 !important;
+}
+
+.form-control:focus {
+  background-color: transparent !important;
+  box-shadow: none !important;
+  border-color: rgba(255, 255, 255, 0.8) !important;
+}
+
+.social-link ul li a .bi {
+  font-size: 25px !important;
+}
+
+.offcanvas-backdrop {
+  display: none !important;
+}
+
+/* MOBILE VIEW */
+@media screen and (max-width: 992px) {
+
+  .navbar-brand,
+  .nav-link,
+  .bi {
+    color: white !important;
+  }
+
+  .offcanvas-body .navbar-nav .nav-item .nav-link {
+    color: white !important;
+  }
+
+  form.d-flex {
+    display: none !important;
+  }
+}
+
+/* DESKTOP VIEW */
+@media screen and (min-width: 993px) {
+  .offcanvas-body .navbar-nav .nav-item .nav-link {
+    font-weight: 300 !important;
+    letter-spacing: 1px !important;
+  }
+
+  .offcanvas {
+    background: transparent !important;
+    backdrop-filter: none !important;
+    /* Removes the blur effect */
+  }
+
+  .navbar-brand,
+  .nav-link,
+  .bi {
+    color: #F7F7F7 !important;
+  }
+}
