@@ -1,3 +1,17 @@
+<?php
+session_start();
+
+// Redirect to dashboard if success is set
+if (isset($_SESSION['success'])) {
+    echo "<script>
+            setTimeout(function() {
+                window.location.href = '../../admin/dashboard/dashboard.php';
+            }, 1000); // Redirect after 1seconds
+          </script>";
+    unset($_SESSION['success']); // Unset success session variable after redirection
+}
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -70,14 +84,32 @@
                                 <label for="loginEmail">Email address</label>
                             </div>
                             <div class="form-floating">
-                                <input type="password" class="form-control shadow-none" id="loginPassword" name="password"
-                                    placeholder="Password" required>
+                                <input type="password" class="form-control shadow-none" id="loginPassword"
+                                    name="password" placeholder="Password" required>
                                 <label for="loginPassword">Password</label>
                             </div>
                             <div class="container d-flex flex-column align-items-center">
-                                <button type="submit" name="signIn" class="login-btn btn rounded-pill w-100">Login</button>
+                                <button type="submit" name="signIn"
+                                    class="login-btn btn rounded-pill w-100">Login</button>
                             </div>
                         </form>
+
+                        <!-- Error Modal -->
+                        <div class="modal fade" id="errorModal" tabindex="-1" aria-labelledby="errorModalLabel"
+                            aria-hidden="true">
+                            <div class="modal-dialog">
+                                <div class="modal-content bg-danger text-white">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="errorModalLabel">Error</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                            aria-label="Close"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <?= $_SESSION['error'] ?? '' ?>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
 
                         <div class="Wrapper d-flex justify-content-center mt-4">
                             <p> Cannot remember your password? <a href="#">Forgot Password</a></p>
@@ -90,6 +122,17 @@
 
     <!-- BOOTSTRAP JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Show Modals for Error -->
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            <?php if (isset($_SESSION['error'])): ?>
+                var errorModal = new bootstrap.Modal(document.getElementById('errorModal'));
+                errorModal.show();
+                <?php unset($_SESSION['error']); ?>
+            <?php endif; ?>
+        });
+    </script>
 </body>
 
 </html>

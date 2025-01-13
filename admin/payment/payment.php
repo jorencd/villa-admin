@@ -62,7 +62,7 @@
                 <thead class="table-dark">
                   <tr>
                     <th>Booking ID</th>
-                    <th>Customer Name</th>
+                    <th>User Name</th>
                     <th>Package Type</th>
                     <th>Payment Method</th>
                     <th>Payment Amount</th>

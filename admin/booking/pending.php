@@ -56,7 +56,7 @@
               <thead class="table-dark">
                 <tr>
                   <th>Booking ID</th>
-                  <th>Customer Name</th>
+                  <th>User Name</th>
                   <th>Package Type</th>
                   <th>Check-in Date</th>
                   <th>Check-out Date</th>
@@ -84,7 +84,7 @@
                   <td>Deluxe Room</td>
                   <td>2025-01-20</td>
                   <td>2025-01-25</td>
-                  <td><span class="badge bg-success">Confirmed</span></td>
+                  <td><span class="badge bg-warning text-dark">Pending</span></td>
                   <td><a href="#" class=" btn btn-primary me-1" type="button">Confirm</a> <a href="#"
                       class=" btn btn-danger" type="button">Delete</a>
                   </td>
