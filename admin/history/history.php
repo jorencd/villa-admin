@@ -1,14 +1,125 @@
 <?php
 include '../database/dbconnect.php';
 
+// Handle form submission for new bookings
+if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+    $first_name = $_POST['first_name'];
+    $last_name = $_POST['last_name'];
+    $package_type = $_POST['package_type'];
+    $check_in = $_POST['check_in'];
+    $check_out = $_POST['check_out'];
 
-// Prepare the SQL query
-$query = "SELECT booking_id, first_name, last_name, package_type, check_in, check_out, booking_status FROM history";
+    // Insert the data into the booking_form table
+    $insert_query = "INSERT INTO booking_form (first_name, last_name, package_type, check_in, check_out, booking_status) VALUES (:first_name, :last_name, :package_type, :check_in, :check_out, 'pending')";
 
-// Execute the query and fetch the results
-$stmt = $pdo->prepare($query);   // Prepare the query
-$stmt->execute();                // Execute the query
-$bookings = $stmt->fetchAll(PDO::FETCH_ASSOC); // Fetch all rows as an associative array
+    $stmt = $pdo->prepare($insert_query);
+    $stmt->execute([
+        ':first_name' => $first_name,
+        ':last_name' => $last_name,
+        ':package_type' => $package_type,
+        ':check_in' => $check_in,
+        ':check_out' => $check_out
+    ]);
+
+    // Redirect to the same page to clear form submission
+    header('Location: ' . $_SERVER['PHP_SELF']);
+    exit;
+}
+
+// Handle actions for Confirm, Delete, Restore, and Permanent Delete
+if (isset($_GET['action']) && isset($_GET['booking_id'])) {
+    $booking_id = $_GET['booking_id'];
+    $action = $_GET['action'];
+
+    if ($action === 'confirm' || $action === 'delete') {
+        // Fetch booking details from booking_form
+        $fetch_query = "SELECT * FROM booking_form WHERE booking_id = :booking_id";
+        $stmt = $pdo->prepare($fetch_query);
+        $stmt->execute([':booking_id' => $booking_id]);
+        $booking = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        if ($booking) {
+            $booking_status = ($action === 'confirm') ? 'completed' : 'cancelled';
+
+            // Insert into history table
+            $history_query = "INSERT INTO history (booking_id, user_id, first_name, last_name, email, guest, check_in, check_out, add_ons, message, package_type, booking_status) 
+                        VALUES (:booking_id, :user_id, :first_name, :last_name, :email, :guest, :check_in, :check_out, :add_ons, :message, :package_type, :booking_status)";
+
+            $stmt = $pdo->prepare($history_query);
+            $stmt->execute([
+                ':booking_id' => $booking['booking_id'],
+                ':user_id' => $booking['user_id'],
+                ':first_name' => $booking['first_name'],
+                ':last_name' => $booking['last_name'],
+                ':email' => $booking['email'],
+                ':guest' => $booking['guest'],
+                ':check_in' => $booking['check_in'],
+                ':check_out' => $booking['check_out'],
+                ':add_ons' => $booking['add_ons'],
+                ':message' => $booking['message'],
+                ':package_type' => $booking['package_type'],
+                ':booking_status' => $booking_status
+            ]);
+
+            // Delete from booking_form
+            $delete_query = "DELETE FROM booking_form WHERE booking_id = :booking_id";
+            $stmt = $pdo->prepare($delete_query);
+            $stmt->execute([':booking_id' => $booking_id]);
+
+            header('Location: ' . $_SERVER['PHP_SELF']);
+            exit;
+        }
+    } elseif ($action === 'restore' || $action === 'permanent_delete') {
+        // Fetch booking details from history
+        $fetch_query = "SELECT * FROM history WHERE booking_id = :booking_id";
+        $stmt = $pdo->prepare($fetch_query);
+        $stmt->execute([':booking_id' => $booking_id]);
+        $history = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        if ($history) {
+            if ($action === 'restore') {
+                // Update status to 'pending' and restore to booking_form
+                $restore_query = "INSERT INTO booking_form (booking_id, user_id, first_name, last_name, email, guest, check_in, check_out, add_ons, message, package_type, booking_status) 
+                          VALUES (:booking_id, :user_id, :first_name, :last_name, :email, :guest, :check_in, :check_out, :add_ons, :message, :package_type, 'pending')";
+
+                $stmt = $pdo->prepare($restore_query);
+                $stmt->execute([
+                    ':booking_id' => $history['booking_id'],
+                    ':user_id' => $history['user_id'],
+                    ':first_name' => $history['first_name'],
+                    ':last_name' => $history['last_name'],
+                    ':email' => $history['email'],
+                    ':guest' => $history['guest'],
+                    ':check_in' => $history['check_in'],
+                    ':check_out' => $history['check_out'],
+                    ':add_ons' => $history['add_ons'],
+                    ':message' => $history['message'],
+                    ':package_type' => $history['package_type']
+                ]);
+            }
+
+            // Delete from history table
+            $delete_history_query = "DELETE FROM history WHERE booking_id = :booking_id";
+            $stmt = $pdo->prepare($delete_history_query);
+            $stmt->execute([':booking_id' => $booking_id]);
+
+            header('Location: ' . $_SERVER['PHP_SELF']);
+            exit;
+        }
+    }
+}
+
+// Fetch pending bookings for display
+$query = "SELECT booking_id, first_name, last_name, package_type, check_in, check_out, booking_status FROM booking_form WHERE booking_status = 'pending'";
+$stmt = $pdo->prepare($query);
+$stmt->execute();
+$bookings = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+// Fetch history for display
+$history_query = "SELECT booking_id, first_name, last_name, package_type, check_in, check_out, booking_status FROM history";
+$stmt = $pdo->prepare($history_query);
+$stmt->execute();
+$history_entries = $stmt->fetchAll(PDO::FETCH_ASSOC);
 ?>
 
 <!DOCTYPE html>
@@ -67,7 +178,9 @@ $bookings = $stmt->fetchAll(PDO::FETCH_ASSOC); // Fetch all rows as an associati
                         </select>
                     </div>
 
-                    <!-- TABLE -->
+
+                    <!-- History Table -->
+                    <h5>Booking History</h5>
                     <div class="table-responsive shadow rounded bg-secondary">
                         <table class="table table-hover table-bordered align-middle mb-0">
                             <thead class="table-dark">
@@ -76,32 +189,87 @@ $bookings = $stmt->fetchAll(PDO::FETCH_ASSOC); // Fetch all rows as an associati
                                     <th>First Name</th>
                                     <th>Last Name</th>
                                     <th>Package Type</th>
-                                    <th>Check In</th>
-                                    <th>Check Out</th>
+                                    <th>Check-in Date</th>
+                                    <th>Check-out Date</th>
                                     <th>Booking Status</th>
                                     <th>Action</th>
-
-
                                 </tr>
                             </thead>
                             <tbody>
-                                <?php foreach ($bookings as $row) { ?>
+                                <?php foreach ($history_entries as $entry) { ?>
                                     <tr>
-                                        <td><?php echo $row['booking_id']; ?></td>
-                                        <td><?php echo $row['first_name']; ?></td>
-                                        <td><?php echo $row['last_name']; ?></td>
-                                        <td><?php echo $row['package_type']; ?></td>
-                                        <td><?php echo $row['check_in']; ?></td>
-                                        <td><?php echo $row['check_out']; ?></td>
-                                        <td><span
-                                                class="badge bg-warning text-dark"><?php echo $row['booking_status']; ?></span>
+                                        <td><?php echo $entry['booking_id']; ?></td>
+                                        <td><?php echo $entry['first_name']; ?></td>
+                                        <td><?php echo $entry['last_name']; ?></td>
+                                        <td><?php echo $entry['package_type']; ?></td>
+                                        <td><?php echo $entry['check_in']; ?></td>
+                                        <td><?php echo $entry['check_out']; ?></td>
+                                        <td><span class="badge bg-secondary"><?php echo $entry['booking_status']; ?></span>
                                         </td>
-                                        <td><a href="#" class=" btn btn-primary me-1" type="button">Restore</a></td>
+                                        <td>
+                                            <!-- Restore Button with Modal Trigger -->
+                                            <a href="#" class="btn btn-primary me-1" data-bs-toggle="modal"
+                                                data-bs-target="#restoreModal<?php echo $entry['booking_id']; ?>">Restore</a>
+
+                                            <!-- Delete Button with Modal Trigger -->
+                                            <a href="#" class="btn btn-danger me-1" data-bs-toggle="modal"
+                                                data-bs-target="#deleteModal<?php echo $entry['booking_id']; ?>">Delete</a>
+                                        </td>
                                     </tr>
+
+                                    <!-- Restore Modal -->
+                                    <div class="modal fade" id="restoreModal<?php echo $entry['booking_id']; ?>"
+                                        tabindex="-1" aria-labelledby="restoreModalLabel" aria-hidden="true">
+                                        <div class="modal-dialog">
+                                            <div class="modal-content">
+                                                <div class="modal-header">
+                                                    <h5 class="modal-title" id="restoreModalLabel">Restore Booking</h5>
+                                                    <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                                        aria-label="Close"></button>
+                                                </div>
+                                                <div class="modal-body">
+                                                    Are you sure you want to restore the booking with ID
+                                                    <?php echo $entry['booking_id']; ?>?
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <button type="button" class="btn btn-secondary"
+                                                        data-bs-dismiss="modal">Cancel</button>
+                                                    <a href="?action=restore&booking_id=<?php echo $entry['booking_id']; ?>"
+                                                        class="btn btn-primary">Restore</a>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Delete Modal -->
+                                    <div class="modal fade" id="deleteModal<?php echo $entry['booking_id']; ?>"
+                                        tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+                                        <div class="modal-dialog">
+                                            <div class="modal-content">
+                                                <div class="modal-header">
+                                                    <h5 class="modal-title" id="deleteModalLabel">Delete Booking</h5>
+                                                    <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                                        aria-label="Close"></button>
+                                                </div>
+                                                <div class="modal-body">
+                                                    Are you sure you want to permanently delete the booking with ID
+                                                    <?php echo $entry['booking_id']; ?>? This action cannot be undone.
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <button type="button" class="btn btn-secondary"
+                                                        data-bs-dismiss="modal">Cancel</button>
+                                                    <a href="?action=permanent_delete&booking_id=<?php echo $entry['booking_id']; ?>"
+                                                        class="btn btn-danger">Delete</a>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
                                 <?php } ?>
                             </tbody>
                         </table>
                     </div>
+
+
 
                     <!-- PAGINATION -->
                     <div class="d-flex justify-content-between align-items-center mt-3">
