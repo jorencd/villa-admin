@@ -1,6 +1,32 @@
 <?php
 include '../database/dbconnect.php';
 
+// Handle form submission
+if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+  $user_id = $_POST['user_id'];
+  $first_name = $_POST['first_name'];
+  $last_name = $_POST['last_name'];
+  $email = $_POST['email'];
+  $package_type = $_POST['package_type'];
+  $check_in = $_POST['check_in'];
+  $check_out = $_POST['check_out'];
+
+  // Insert the data into the booking_form table
+  $insert_query = "INSERT INTO booking_form (user_id, first_name, last_name, email, package_type, check_in, check_out, booking_status) VALUES ('00', :first_name, :last_name, 'admin', :package_type, :check_in, :check_out, 'pending')";
+
+  $stmt = $pdo->prepare($insert_query);
+  $stmt->execute([
+    ':first_name' => $first_name,
+    ':last_name' => $last_name,
+    ':package_type' => $package_type,
+    ':check_in' => $check_in,
+    ':check_out' => $check_out
+  ]);
+
+  // Redirect to the same page to clear form submission
+  header('Location: ' . $_SERVER['PHP_SELF']);
+  exit;
+}
 
 // Prepare the SQL query
 $query = "SELECT booking_id, first_name, last_name, package_type, check_in, check_out, booking_status FROM booking_form WHERE booking_status = 'pending'";
@@ -60,7 +86,55 @@ $bookings = $stmt->fetchAll(PDO::FETCH_ASSOC); // Fetch all rows as an associati
               </button>
             </div>
 
+            <button class="btn btn-primary me-2" type="button" data-bs-toggle="modal"
+              data-bs-target="#addBookingModal">Add</button>
             <a href="../../admin/history/history.php" class=" btn btn-outline-primary" type="button">History</a>
+          </div>
+
+          <!-- Add Booking Modal -->
+          <div class="modal fade" id="addBookingModal" tabindex="-1" aria-labelledby="addBookingModalLabel"
+            aria-hidden="true">
+            <div class="modal-dialog">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h5 class="modal-title" id="addBookingModalLabel">Add New Booking</h5>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                  <form method="POST" action="">
+                    <div class="mb-3">
+                      <label for="first_name" class="form-label">First Name</label>
+                      <input type="text" class="form-control" id="first_name" name="first_name" required>
+                    </div>
+                    <div class="mb-3">
+                      <label for="last_name" class="form-label">Last Name</label>
+                      <input type="text" class="form-control" id="last_name" name="last_name" required>
+                    </div>
+                    <div class="mb-3">
+                      <label for="package_type" class="form-label">Package Type</label>
+                      <select class="form-select" id="package_type" name="package_type" required>
+                        <option value="Essential">Essential</option>
+                        <option value="Deluxe">Deluxe</option>
+                        <option value="Supreme">Supreme</option>
+                      </select>
+                    </div>
+                    <div class="mb-3">
+                      <label for="check_in" class="form-label">Check-in Date</label>
+                      <input type="date" class="form-control" id="check_in" name="check_in" required
+                        min="<?php echo date('Y-m-d'); ?>">
+                    </div>
+                    <div class="mb-3">
+                      <label for="check_out" class="form-label">Check-out Date</label>
+                      <input type="date" class="form-control" id="check_out" name="check_out" required
+                        min="<?php echo date('Y-m-d'); ?>">
+                    </div>
+                    <div class="d-flex justify-content-center">
+                      <button type="submit" class="btn btn-primary d-flex justify-content-center">Submit</button>
+                    </div>
+                  </form>
+                </div>
+              </div>
+            </div>
           </div>
 
           <!-- TABLE -->
