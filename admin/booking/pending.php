@@ -3,16 +3,14 @@ include '../database/dbconnect.php';
 
 // Handle form submission
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-  $user_id = $_POST['user_id'];
   $first_name = $_POST['first_name'];
   $last_name = $_POST['last_name'];
-  $email = $_POST['email'];
   $package_type = $_POST['package_type'];
   $check_in = $_POST['check_in'];
   $check_out = $_POST['check_out'];
 
   // Insert the data into the booking_form table
-  $insert_query = "INSERT INTO booking_form (user_id, first_name, last_name, email, package_type, check_in, check_out, booking_status) VALUES ('00', :first_name, :last_name, 'admin', :package_type, :check_in, :check_out, 'pending')";
+  $insert_query = "INSERT INTO booking_form (first_name, last_name, package_type, check_in, check_out, booking_status) VALUES (:first_name, :last_name, :package_type, :check_in, :check_out, 'pending')";
 
   $stmt = $pdo->prepare($insert_query);
   $stmt->execute([
@@ -26,6 +24,50 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
   // Redirect to the same page to clear form submission
   header('Location: ' . $_SERVER['PHP_SELF']);
   exit;
+}
+
+// Handle Confirm and Delete actions
+if (isset($_GET['action']) && isset($_GET['booking_id'])) {
+  $booking_id = $_GET['booking_id'];
+  $action = $_GET['action'];
+
+  // Fetch booking details
+  $fetch_query = "SELECT * FROM booking_form WHERE booking_id = :booking_id";
+  $stmt = $pdo->prepare($fetch_query);
+  $stmt->execute([':booking_id' => $booking_id]);
+  $booking = $stmt->fetch(PDO::FETCH_ASSOC);
+
+  if ($booking) {
+    $booking_status = ($action === 'confirm') ? 'completed' : 'cancelled';
+
+    // Insert into history table
+    $history_query = "INSERT INTO history (booking_id, user_id, first_name, last_name, email, guest, check_in, check_out, add_ons, message, package_type, booking_status) 
+                      VALUES (:booking_id, :user_id, :first_name, :last_name, :email, :guest, :check_in, :check_out, :add_ons, :message, :package_type, :booking_status)";
+
+    $stmt = $pdo->prepare($history_query);
+    $stmt->execute([
+      ':booking_id' => $booking['booking_id'],
+      ':user_id' => $booking['user_id'],
+      ':first_name' => $booking['first_name'],
+      ':last_name' => $booking['last_name'],
+      ':email' => $booking['email'],
+      ':guest' => $booking['guest'],
+      ':check_in' => $booking['check_in'],
+      ':check_out' => $booking['check_out'],
+      ':add_ons' => $booking['add_ons'],
+      ':message' => $booking['message'],
+      ':package_type' => $booking['package_type'],
+      ':booking_status' => $booking_status
+    ]);
+
+    // Delete from booking_form
+    $delete_query = "DELETE FROM booking_form WHERE booking_id = :booking_id";
+    $stmt = $pdo->prepare($delete_query);
+    $stmt->execute([':booking_id' => $booking_id]);
+
+    header('Location: ' . $_SERVER['PHP_SELF']);
+    exit;
+  }
 }
 
 // Prepare the SQL query
@@ -162,48 +204,89 @@ $bookings = $stmt->fetchAll(PDO::FETCH_ASSOC); // Fetch all rows as an associati
                     <td><?php echo $row['check_in']; ?></td>
                     <td><?php echo $row['check_out']; ?></td>
                     <td><span class="badge bg-warning text-dark"><?php echo $row['booking_status']; ?></span></td>
-                    <td><a href="#" class=" btn btn-primary me-1" type="button">Confirm</a> <a href="#"
-                        class=" btn btn-danger" type="button">Delete</a>
+                    <td>
+                      <button class="btn btn-primary me-1" data-bs-toggle="modal" data-bs-target="#confirmModal"
+                        data-action="confirm" data-id="<?php echo $row['booking_id']; ?>">Confirm</button>
+                      <button class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#confirmModal"
+                        data-action="delete" data-id="<?php echo $row['booking_id']; ?>">Delete</button>
                     </td>
                   </tr>
                 <?php } ?>
               </tbody>
             </table>
           </div>
-          <!-- PAGINATION -->
-          <div class="d-flex justify-content-between align-items-center mt-3">
-            <p class="mb-0">Showing 1 to 3 of 50 bookings</p>
-            <nav aria-label="Page navigation">
-              <ul class="pagination mb-0">
-                <li class="page-item disabled">
-                  <a class="page-link" href="#" tabindex="-1">
-                    <i class="bi bi-arrow-left"></i>
-                  </a>
-                </li>
-                <li class="page-item active">
-                  <a class="page-link" href="#">1</a>
-                </li>
-                <li class="page-item">
-                  <a class="page-link" href="#">2</a>
-                </li>
-                <li class="page-item">
-                  <a class="page-link" href="#">3</a>
-                </li>
-                <li class="page-item">
-                  <a class="page-link" href="#">
-                    <i class="bi bi-arrow-right"></i>
-                  </a>
-                </li>
-              </ul>
-            </nav>
-          </div>
-          <br><br><br>
-        </div>
-        <!-- END MAIN BODY -->
 
-        <br><br><br><br>
+          <!-- Modal for Confirm and Delete -->
+          <div class="modal fade" id="confirmModal" tabindex="-1" aria-labelledby="confirmModalLabel"
+            aria-hidden="true">
+            <div class="modal-dialog">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h5 class="modal-title" id="confirmModalLabel">Confirm Action</h5>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                  Are you sure you want to proceed with this action?
+                </div>
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                  <a id="modalConfirmAction" href="#" class="btn btn-primary">Proceed</a>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Script to handle dynamic action links in the modal -->
+          <script>
+            var confirmModal = document.getElementById('confirmModal');
+            confirmModal.addEventListener('show.bs.modal', function (event) {
+              var button = event.relatedTarget;
+              var action = button.getAttribute('data-action');
+              var bookingId = button.getAttribute('data-id');
+              var modalConfirmAction = document.getElementById('modalConfirmAction');
+              modalConfirmAction.href = "?action=" + action + "&booking_id=" + bookingId;
+            });
+          </script>
+
+        </div>
       </div>
     </div>
+  </div>
+
+  <!-- PAGINATION -->
+  <div class="d-flex justify-content-between align-items-center mt-3">
+    <p class="mb-0">Showing 1 to 3 of 50 bookings</p>
+    <nav aria-label="Page navigation">
+      <ul class="pagination mb-0">
+        <li class="page-item disabled">
+          <a class="page-link" href="#" tabindex="-1">
+            <i class="bi bi-arrow-left"></i>
+          </a>
+        </li>
+        <li class="page-item active">
+          <a class="page-link" href="#">1</a>
+        </li>
+        <li class="page-item">
+          <a class="page-link" href="#">2</a>
+        </li>
+        <li class="page-item">
+          <a class="page-link" href="#">3</a>
+        </li>
+        <li class="page-item">
+          <a class="page-link" href="#">
+            <i class="bi bi-arrow-right"></i>
+          </a>
+        </li>
+      </ul>
+    </nav>
+  </div>
+  <br><br><br>
+  </div>
+  <!-- END MAIN BODY -->
+
+  <br><br><br><br>
+  </div>
+  </div>
   </div>
   <!-- BOOTSTRAP JS -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
