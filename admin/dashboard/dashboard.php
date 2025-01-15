@@ -34,8 +34,8 @@
       <!-- MAIN CONTENT -->
       <div class="col-12 col-md-10 p-0 bg-body-tertiary vh-100 overflow-auto main-body">
         <!-- HEADER -->
-        <?php include '../../components/admin-header/header.php';?>
- 
+        <?php include '../../components/admin-header/header.php'; ?>
+
         <!-- MAIN BODY -->
         <div class="main-body container-fluid pt-5 pt-md-3 mt-5 mt-md-0">
           <h1>Dashboard</h1>
@@ -47,7 +47,8 @@
                   <i class="fas fa-calendar-check text-light bg-primary fs-3"></i>
                   <h6 class="card-subtitle text-body-secondary mb-3">Total Bookings</h6>
                   <h3 class="card-title">125</h3>
-                  <p><span class="text-success"><i class="bi bi-chevron-double-up"></i> 8.5%</span> up from yesterday</p>
+                  <p><span class="text-success"><i class="bi bi-chevron-double-up"></i> 8.5%</span> up from yesterday
+                  </p>
                   <a href="../../admin/history/history.php" class="btn btn-dark">View Details</a>
                 </div>
               </div>
@@ -60,7 +61,8 @@
                   <i class="fas fa-check-circle bg-success text-light fs-3"></i>
                   <h6 class="card-subtitle text-body-secondary mb-3">Confirmed Bookings</h6>
                   <h3 class="card-title">90</h3>
-                  <p><span class="text-success"><i class="bi bi-chevron-double-up"></i> 8.5%</span> up from yesterday</p>
+                  <p><span class="text-success"><i class="bi bi-chevron-double-up"></i> 8.5%</span> up from yesterday
+                  </p>
                   <a href="../../admin/history/history.php" class="btn btn-dark">View Details</a>
                 </div>
               </div>
@@ -73,7 +75,8 @@
                   <i class="fas fa-hourglass-half bg-danger text-light fs-3"></i>
                   <h6 class="card-subtitle text-body-secondary mb-3">Pending Bookings</h6>
                   <h3 class="card-title">25</h3>
-                  <p><span class="text-success"><i class="bi bi-chevron-double-up"></i> 8.5%</span> up from yesterday</p>
+                  <p><span class="text-success"><i class="bi bi-chevron-double-up"></i> 8.5%</span> up from yesterday
+                  </p>
                   <a href="../../admin/booking/pending.php" class="btn btn-dark">View Details</a>
                 </div>
               </div>
@@ -86,7 +89,8 @@
                   <i class="fas fa-dollar-sign border bg-warning text-dark fs-3"></i>
                   <h6 class="card-subtitle text-body-secondary mb-3">Total Revenue</h6>
                   <h3 class="card-title">₱40,689</h3>
-                  <p><span class="text-success"><i class="bi bi-chevron-double-up"></i> 8.5%</span> up from yesterday</p>
+                  <p><span class="text-success"><i class="bi bi-chevron-double-up"></i> 8.5%</span> up from yesterday
+                  </p>
                   <a href="../../admin/reports/reports.php" class="btn btn-dark">View Details</a>
                 </div>
               </div>

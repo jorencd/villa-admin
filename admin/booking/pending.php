@@ -5,12 +5,13 @@ include '../database/dbconnect.php';
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
   $first_name = $_POST['first_name'];
   $last_name = $_POST['last_name'];
+  $email = $_POST['email'];
   $package_type = $_POST['package_type'];
   $check_in = $_POST['check_in'];
   $check_out = $_POST['check_out'];
 
   // Insert the data into the booking_form table
-  $insert_query = "INSERT INTO booking_form (first_name, last_name, package_type, check_in, check_out, booking_status) VALUES (:first_name, :last_name, :package_type, :check_in, :check_out, 'pending')";
+  $insert_query = "INSERT INTO booking_form (first_name, last_name, email, package_type, check_in, check_out, booking_status) VALUES (:first_name, :last_name, 'admin', :package_type, :check_in, :check_out, 'pending')";
 
   $stmt = $pdo->prepare($insert_query);
   $stmt->execute([
@@ -38,7 +39,7 @@ if (isset($_GET['action']) && isset($_GET['booking_id'])) {
   $booking = $stmt->fetch(PDO::FETCH_ASSOC);
 
   if ($booking) {
-    $booking_status = ($action === 'confirm') ? 'completed' : 'cancelled';
+    $booking_status = ($action === 'confirm') ? 'completed' : 'deleted';
 
     // Insert into history table
     $history_query = "INSERT INTO history (booking_id, user_id, first_name, last_name, email, guest, check_in, check_out, add_ons, message, package_type, booking_status) 
