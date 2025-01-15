@@ -27,10 +27,22 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
   exit;
 }
 
-// Handle Confirm and Delete actions
-if (isset($_GET['action']) && isset($_GET['booking_id'])) {
+// Handle Confirm action
+if (isset($_GET['action'], $_GET['booking_id']) && $_GET['action'] === 'confirm') {
   $booking_id = $_GET['booking_id'];
-  $action = $_GET['action'];
+
+  // Update booking status to completed
+  $update_query = "UPDATE booking_form SET booking_status = 'completed' WHERE booking_id = :booking_id";
+  $stmt = $pdo->prepare($update_query);
+  $stmt->execute([':booking_id' => $booking_id]);
+
+  header('Location: ' . $_SERVER['PHP_SELF']);
+  exit;
+}
+
+// Handle Delete action
+if (isset($_GET['action'], $_GET['booking_id']) && $_GET['action'] === 'delete') {
+  $booking_id = $_GET['booking_id'];
 
   // Fetch booking details
   $fetch_query = "SELECT * FROM booking_form WHERE booking_id = :booking_id";
@@ -39,8 +51,6 @@ if (isset($_GET['action']) && isset($_GET['booking_id'])) {
   $booking = $stmt->fetch(PDO::FETCH_ASSOC);
 
   if ($booking) {
-    $booking_status = ($action === 'confirm') ? 'completed' : 'deleted';
-
     // Insert into history table
     $history_query = "INSERT INTO history (booking_id, user_id, first_name, last_name, email, guest, check_in, check_out, add_ons, message, package_type, booking_status) 
                       VALUES (:booking_id, :user_id, :first_name, :last_name, :email, :guest, :check_in, :check_out, :add_ons, :message, :package_type, :booking_status)";
@@ -58,7 +68,7 @@ if (isset($_GET['action']) && isset($_GET['booking_id'])) {
       ':add_ons' => $booking['add_ons'],
       ':message' => $booking['message'],
       ':package_type' => $booking['package_type'],
-      ':booking_status' => $booking_status
+      ':booking_status' => 'deleted'
     ]);
 
     // Delete from booking_form
@@ -72,12 +82,12 @@ if (isset($_GET['action']) && isset($_GET['booking_id'])) {
 }
 
 // Prepare the SQL query
-$query = "SELECT booking_id, first_name, last_name, package_type, check_in, check_out, booking_status FROM booking_form WHERE booking_status = 'pending'";
+$query = "SELECT booking_id, first_name, last_name, package_type, check_in, check_out, booking_status FROM booking_form";
 
 // Execute the query and fetch the results
-$stmt = $pdo->prepare($query);   // Prepare the query
-$stmt->execute();                // Execute the query
-$bookings = $stmt->fetchAll(PDO::FETCH_ASSOC); // Fetch all rows as an associative array
+$stmt = $pdo->prepare($query);
+$stmt->execute();
+$bookings = $stmt->fetchAll(PDO::FETCH_ASSOC);
 ?>
 
 <!DOCTYPE html>
@@ -100,7 +110,7 @@ $bookings = $stmt->fetchAll(PDO::FETCH_ASSOC); // Fetch all rows as an associati
   <link rel="stylesheet" href="../../admin/booking/pending.css">
 
   <!-- TITLE -->
-  <title>Admin - Pending</title>
+  <title>Admin - Booking Management</title>
 </head>
 
 <body>
@@ -121,7 +131,7 @@ $bookings = $stmt->fetchAll(PDO::FETCH_ASSOC); // Fetch all rows as an associati
 
           <!-- Search Bar -->
           <div class="d-flex justify-content-between align-items-center mb-3">
-            <div class="container d-flex ">
+            <div class="container d-flex">
               <input type="text" class="form-control w-50 shadow-sm rounded-0 rounded-start" placeholder="Search"
                 aria-label="Search">
               <button class="btn btn-primary rounded-0 rounded-end">
@@ -131,7 +141,7 @@ $bookings = $stmt->fetchAll(PDO::FETCH_ASSOC); // Fetch all rows as an associati
 
             <button class="btn btn-primary me-2" type="button" data-bs-toggle="modal"
               data-bs-target="#addBookingModal">Add</button>
-            <a href="../../admin/history/history.php" class=" btn btn-outline-primary" type="button">History</a>
+            <a href="../../admin/history/history.php" class="btn btn-outline-primary" type="button">History</a>
           </div>
 
           <!-- Add Booking Modal -->
@@ -204,10 +214,15 @@ $bookings = $stmt->fetchAll(PDO::FETCH_ASSOC); // Fetch all rows as an associati
                     <td><?php echo $row['package_type']; ?></td>
                     <td><?php echo $row['check_in']; ?></td>
                     <td><?php echo $row['check_out']; ?></td>
-                    <td><span class="badge bg-warning text-dark"><?php echo $row['booking_status']; ?></span></td>
+                    <td>
+                      <span
+                        class="badge <?php echo ($row['booking_status'] === 'completed') ? 'bg-success' : 'bg-warning text-dark'; ?>">
+                        <?php echo $row['booking_status']; ?>
+                      </span>
+                    </td>
                     <td>
                       <button class="btn btn-primary me-1" data-bs-toggle="modal" data-bs-target="#confirmModal"
-                        data-action="confirm" data-id="<?php echo $row['booking_id']; ?>">Confirm</button>
+                        data-action="confirm" data-id="<?php echo $row['booking_id']; ?>" <?php echo ($row['booking_status'] === 'completed') ? 'disabled' : ''; ?>>Confirm</button>
                       <button class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#confirmModal"
                         data-action="delete" data-id="<?php echo $row['booking_id']; ?>">Delete</button>
                     </td>
@@ -216,6 +231,7 @@ $bookings = $stmt->fetchAll(PDO::FETCH_ASSOC); // Fetch all rows as an associati
               </tbody>
             </table>
           </div>
+
 
           <!-- Modal for Confirm and Delete -->
           <div class="modal fade" id="confirmModal" tabindex="-1" aria-labelledby="confirmModalLabel"
@@ -248,47 +264,11 @@ $bookings = $stmt->fetchAll(PDO::FETCH_ASSOC); // Fetch all rows as an associati
               modalConfirmAction.href = "?action=" + action + "&booking_id=" + bookingId;
             });
           </script>
-
         </div>
       </div>
     </div>
   </div>
 
-  <!-- PAGINATION -->
-  <div class="d-flex justify-content-between align-items-center mt-3">
-    <p class="mb-0">Showing 1 to 3 of 50 bookings</p>
-    <nav aria-label="Page navigation">
-      <ul class="pagination mb-0">
-        <li class="page-item disabled">
-          <a class="page-link" href="#" tabindex="-1">
-            <i class="bi bi-arrow-left"></i>
-          </a>
-        </li>
-        <li class="page-item active">
-          <a class="page-link" href="#">1</a>
-        </li>
-        <li class="page-item">
-          <a class="page-link" href="#">2</a>
-        </li>
-        <li class="page-item">
-          <a class="page-link" href="#">3</a>
-        </li>
-        <li class="page-item">
-          <a class="page-link" href="#">
-            <i class="bi bi-arrow-right"></i>
-          </a>
-        </li>
-      </ul>
-    </nav>
-  </div>
-  <br><br><br>
-  </div>
-  <!-- END MAIN BODY -->
-
-  <br><br><br><br>
-  </div>
-  </div>
-  </div>
   <!-- BOOTSTRAP JS -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
