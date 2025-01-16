@@ -1,3 +1,46 @@
+<?php
+// Database connection
+include '../database/dbconnect.php';
+
+// Query to get total bookings count
+$sql_total_bookings = "SELECT COUNT(*) AS total_bookings FROM booking_form";
+$stmt = $pdo->prepare($sql_total_bookings);
+$stmt->execute();
+$row = $stmt->fetch(PDO::FETCH_ASSOC);
+$total_bookings = $row['total_bookings'];
+
+// Query to get confirmed bookings count
+$sql_confirmed_bookings = "SELECT COUNT(*) AS confirmed_bookings FROM booking_form WHERE booking_status = 'completed'";
+$stmt = $pdo->prepare($sql_confirmed_bookings);
+$stmt->execute();
+$row = $stmt->fetch(PDO::FETCH_ASSOC);
+$confirmed_bookings = $row['confirmed_bookings'];
+
+// Query to get pending bookings count
+$sql_pending_bookings = "SELECT COUNT(*) AS pending_bookings FROM booking_form WHERE booking_status = 'pending'";
+$stmt = $pdo->prepare($sql_pending_bookings);
+$stmt->execute();
+$row = $stmt->fetch(PDO::FETCH_ASSOC);
+$pending_bookings = $row['pending_bookings'];
+
+// Query to get cancelled bookings count
+$sql_cancelled_bookings = "SELECT COUNT(*) AS cancelled_bookings FROM booking_form WHERE booking_status = 'cancelled'";
+$stmt = $pdo->prepare($sql_cancelled_bookings);
+$stmt->execute();
+$row = $stmt->fetch(PDO::FETCH_ASSOC);
+$cancelled_bookings = $row['cancelled_bookings'];
+
+// Query to get total revenue
+$sql_total_revenue = "SELECT SUM(total_amount_paid) AS total_revenue FROM payment";
+$stmt = $pdo->prepare($sql_total_revenue);
+$stmt->execute();
+$row = $stmt->fetch(PDO::FETCH_ASSOC);
+$total_revenue = $row['total_revenue'];
+
+// Close connection
+$pdo = null;
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -13,7 +56,6 @@
 
   <!-- FONT AWESOME -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
-
 
   <!-- Chart.js -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -40,73 +82,80 @@
         <div class="main-body container-fluid pt-5 pt-md-3 mt-5 mt-md-0">
           <h1>Dashboard</h1>
           <div class="row px-3 mt-2 gy-4">
-            <!-- CARDS 1 -->
+            <!-- Total Bookings -->
             <div class="col-12 col-md-4">
               <div class="card border-0 shadow">
                 <div class="card-body px-2 pt-3">
                   <i class="fas fa-calendar-check text-light bg-primary fs-3"></i>
                   <h6 class="card-subtitle text-body-secondary mb-3">Total Bookings</h6>
-                  <h3 class="card-title">125</h3>
-                  <p><span class="text-success"><i class="bi bi-chevron-double-up"></i> 8.5%</span> up from yesterday
+                  <!-- Displaying the total bookings count from PHP -->
+                  <h3 class="card-title"><?php echo $total_bookings; ?></h3>
+                  <p><span class="text-success"><i class="bi bi-chevron-double-down"></i>All Bookings check
+                      details</span>
                   </p>
                   <a href="../../admin/booking/pending.php" class="btn btn-dark">View Details</a>
                 </div>
               </div>
             </div>
 
-            <!-- CARDS 2 -->
+            <!-- Confirmed Bookings -->
             <div class="col-12 col-md-4">
               <div class="card border-0 shadow">
                 <div class="card-body px-2 pt-3">
                   <i class="fas fa-check-circle bg-success text-light fs-3"></i>
                   <h6 class="card-subtitle text-body-secondary mb-3">Confirmed Bookings</h6>
-                  <h3 class="card-title">90</h3>
-                  <p><span class="text-success"><i class="bi bi-chevron-double-up"></i> 8.5%</span> up from yesterday
+                  <!-- Displaying confirmed bookings count from PHP -->
+                  <h3 class="card-title"><?php echo $confirmed_bookings; ?></h3>
+                  <p><span class="text-success"><i class="bi bi-chevron-double-down"></i>Confirmed bookings check
+                      details </span>
                   </p>
                   <a href="../../admin/booking/pending.php?status=completed" class="btn btn-dark">View Details</a>
                 </div>
               </div>
             </div>
 
-            <!-- Pending -->
+            <!-- Pending Bookings -->
             <div class="col-12 col-md-4">
               <div class="card border-0 shadow">
                 <div class="card-body px-2 pt-3">
                   <i class="fas fa-check-circle bg-warning text-light fs-3"></i>
                   <h6 class="card-subtitle text-body-secondary mb-3">Pending Bookings</h6>
-                  <h3 class="card-title">90</h3>
-                  <p><span class="text-success"><i class="bi bi-chevron-double-up"></i> 8.5%</span> up from yesterday
+                  <!-- Displaying pending bookings count from PHP -->
+                  <h3 class="card-title"><?php echo $pending_bookings; ?></h3>
+                  <p><span class="text-success"><i class="bi bi-chevron-double-down"></i>Pending bookings check
+                      details </span>
                   </p>
                   <a href="../../admin/booking/pending.php?status=pending" class="btn btn-dark">View Details</a>
                 </div>
               </div>
             </div>
 
-
-            <!-- CARDS 3 -->
+            <!-- Cancelled Bookings -->
             <div class="col-12 col-md-4">
               <div class="card border-0 shadow">
                 <div class="card-body px-2 pt-3">
                   <i class="fas fa-hourglass-half bg-danger text-light fs-3"></i>
                   <h6 class="card-subtitle text-body-secondary mb-3">Cancelled Bookings</h6>
-                  <h3 class="card-title">25</h3>
-                  <p><span class="text-success"><i class="bi bi-chevron-double-up"></i> 8.5%</span> up from yesterday
+                  <!-- Displaying cancelled bookings count from PHP -->
+                  <h3 class="card-title"><?php echo $cancelled_bookings; ?></h3>
+                  <p><span class="text-success"><i class="bi bi-chevron-double-down"></i>Cancelled bookings check
+                      details </span>
                   </p>
                   <a href="../../admin/booking/pending.php?status=cancelled" class="btn btn-dark">View Details</a>
                 </div>
               </div>
             </div>
 
-
-
-            <!-- CARDS 4 -->
+            <!-- Total Revenue -->
             <div class="col-12 col-md-4">
               <div class="card border-0 shadow">
                 <div class="card-body px-2 pt-3">
                   <i class="fas fa-dollar-sign border bg-warning text-dark fs-3"></i>
                   <h6 class="card-subtitle text-body-secondary mb-3">Total Revenue</h6>
-                  <h3 class="card-title">₱40,689</h3>
-                  <p><span class="text-success"><i class="bi bi-chevron-double-up"></i> 8.5%</span> up from yesterday
+                  <!-- Displaying total revenue from PHP -->
+                  <h3 class="card-title">₱<?php echo number_format($total_revenue, 2); ?></h3>
+                  <p><span class="text-success"><i class="bi bi-chevron-double-down"></i>Total Revenue check
+                      details </span>
                   </p>
                   <a href="../../admin/reports/reports.php" class="btn btn-dark">View Details</a>
                 </div>
@@ -114,6 +163,7 @@
             </div>
           </div>
           <hr class="my-5">
+
           <!-- CHART -->
           <div class="container mt-2">
             <h2 class="text-center mb-4">Sales Overview</h2>
