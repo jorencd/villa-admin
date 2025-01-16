@@ -169,8 +169,10 @@ $bookings = $stmt->fetchAll(PDO::FETCH_ASSOC);
             <form method="GET" action="" class="d-flex align-items-center w-50">
               <select name="status" class="form-select shadow-none me-3" aria-label="Status filter" onchange="this.form.submit()">
                 <option value="all" <?php echo ($status_filter === 'all') ? 'selected' : ''; ?>>All</option>
+                <option value="pending" <?php echo ($status_filter === 'pending') ? 'selected' : ''; ?>>Pending</option>
                 <option value="completed" <?php echo ($status_filter === 'completed') ? 'selected' : ''; ?>>Completed</option>
                 <option value="cancelled" <?php echo ($status_filter === 'cancelled') ? 'selected' : ''; ?>>Cancelled</option>
+                
               </select>
             </form>
 
