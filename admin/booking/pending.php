@@ -40,6 +40,19 @@ if (isset($_GET['action'], $_GET['booking_id']) && $_GET['action'] === 'confirm'
   exit;
 }
 
+// Handle Cancel action
+if (isset($_GET['action'], $_GET['booking_id']) && $_GET['action'] === 'cancel') {
+  $booking_id = $_GET['booking_id'];
+
+  // Update booking status to completed
+  $update_query = "UPDATE booking_form SET booking_status = 'cancelled' WHERE booking_id = :booking_id";
+  $stmt = $pdo->prepare($update_query);
+  $stmt->execute([':booking_id' => $booking_id]);
+
+  header('Location: ' . $_SERVER['PHP_SELF']);
+  exit;
+}
+
 // Handle Delete action
 if (isset($_GET['action'], $_GET['booking_id']) && $_GET['action'] === 'delete') {
   $booking_id = $_GET['booking_id'];
@@ -223,7 +236,12 @@ $bookings = $stmt->fetchAll(PDO::FETCH_ASSOC);
                     <td>
                       <button class="btn btn-primary me-1" data-bs-toggle="modal" data-bs-target="#confirmModal"
                         data-action="confirm" data-id="<?php echo $row['booking_id']; ?>" <?php echo ($row['booking_status'] === 'completed') ? 'disabled' : ''; ?>>Confirm</button>
-                      <button class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#confirmModal"
+
+                      <button class="btn btn-danger text-white me-5" data-bs-toggle="modal"
+                        data-bs-target="#confirmModal" data-action="cancel" data-id="<?php echo $row['booking_id']; ?>"
+                        <?php echo ($row['booking_status'] === 'cancelled') ? 'disabled' : ''; ?>>Cancel</button>
+
+                      <button class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#confirmModal"
                         data-action="delete" data-id="<?php echo $row['booking_id']; ?>">Delete</button>
                     </td>
                   </tr>

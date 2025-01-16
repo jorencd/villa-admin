@@ -21,26 +21,7 @@ $current_file = basename($_SERVER['PHP_SELF']);
       </form>
     </div>
     <div class="d-flex align-items-center">
-      <!-- DROPDOWN PROFILE -->
-      <div class="dropdown">
-        <button class="btn btn-secondary rounded-circle p-2" type="button" data-bs-toggle="dropdown"
-          aria-expanded="false">
-          SG
-        </button>
-        <ul class="dropdown-menu">
-          <li><a class="dropdown-item" href="../../admin/manage-account/manage-account.php">Manage Accounts</a></li>
-          <li>
-            <hr class=" dropdown-divider">
-          </li>
-          <li><a class="dropdown-item" href="../../admin/authentication/authentication.php">Log Out</a></li>
-        </ul>
-      </div>
-      <div class="d-flex flex-column align-items-center px-2">
-        <h6 class="mb-0">Selwyn</h6>
-        <small class="text-secondary">admin</small>
-      </div>
-    </div>
-  </div>
+
 </header>
 
 <!-- NAVBAR MOBILE VIEW -->
