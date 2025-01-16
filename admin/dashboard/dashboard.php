@@ -49,7 +49,7 @@
                   <h3 class="card-title">125</h3>
                   <p><span class="text-success"><i class="bi bi-chevron-double-up"></i> 8.5%</span> up from yesterday
                   </p>
-                  <a href="../../admin/history/history.php" class="btn btn-dark">View Details</a>
+                  <a href="../../admin/booking/pending.php" class="btn btn-dark">View Details</a>
                 </div>
               </div>
             </div>
@@ -63,24 +63,41 @@
                   <h3 class="card-title">90</h3>
                   <p><span class="text-success"><i class="bi bi-chevron-double-up"></i> 8.5%</span> up from yesterday
                   </p>
-                  <a href="../../admin/history/history.php" class="btn btn-dark">View Details</a>
+                  <a href="../../admin/booking/pending.php?status=completed" class="btn btn-dark">View Details</a>
                 </div>
               </div>
             </div>
+
+            <!-- Pending -->
+            <div class="col-12 col-md-4">
+              <div class="card border-0 shadow">
+                <div class="card-body px-2 pt-3">
+                  <i class="fas fa-check-circle bg-warning text-light fs-3"></i>
+                  <h6 class="card-subtitle text-body-secondary mb-3">Pending Bookings</h6>
+                  <h3 class="card-title">90</h3>
+                  <p><span class="text-success"><i class="bi bi-chevron-double-up"></i> 8.5%</span> up from yesterday
+                  </p>
+                  <a href="../../admin/booking/pending.php?status=pending" class="btn btn-dark">View Details</a>
+                </div>
+              </div>
+            </div>
+
 
             <!-- CARDS 3 -->
             <div class="col-12 col-md-4">
               <div class="card border-0 shadow">
                 <div class="card-body px-2 pt-3">
                   <i class="fas fa-hourglass-half bg-danger text-light fs-3"></i>
-                  <h6 class="card-subtitle text-body-secondary mb-3">Pending Bookings</h6>
+                  <h6 class="card-subtitle text-body-secondary mb-3">Cancelled Bookings</h6>
                   <h3 class="card-title">25</h3>
                   <p><span class="text-success"><i class="bi bi-chevron-double-up"></i> 8.5%</span> up from yesterday
                   </p>
-                  <a href="../../admin/booking/pending.php" class="btn btn-dark">View Details</a>
+                  <a href="../../admin/booking/pending.php?status=cancelled" class="btn btn-dark">View Details</a>
                 </div>
               </div>
             </div>
+
+
 
             <!-- CARDS 4 -->
             <div class="col-12 col-md-4">
