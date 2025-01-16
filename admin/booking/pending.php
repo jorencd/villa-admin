@@ -94,12 +94,25 @@ if (isset($_GET['action'], $_GET['booking_id']) && $_GET['action'] === 'delete')
   }
 }
 
-// Prepare the SQL query
+// Handle filter logic
+$status_filter = isset($_GET['status']) ? $_GET['status'] : 'all';
+
+// Prepare the SQL query with filter
 $query = "SELECT booking_id, first_name, last_name, package_type, check_in, check_out, booking_status FROM booking_form";
+
+// If a status filter is selected, modify the query
+if ($status_filter !== 'all') {
+  $query .= " WHERE booking_status = :status";
+}
 
 // Execute the query and fetch the results
 $stmt = $pdo->prepare($query);
-$stmt->execute();
+if ($status_filter !== 'all') {
+  $stmt->execute([':status' => $status_filter]);
+} else {
+  $stmt->execute();
+}
+
 $bookings = $stmt->fetchAll(PDO::FETCH_ASSOC);
 ?>
 
@@ -152,11 +165,14 @@ $bookings = $stmt->fetchAll(PDO::FETCH_ASSOC);
               </button>
             </div>
 
-                       <select class="form-select shadow-none w-50" aria-label="Default select example">
-                            <option selected>All</option>
-                            <option value="1">Completed</option>
-                            <option value="3">Cancelled</option>
-                        </select>
+            <!-- Filter Dropdown -->
+            <form method="GET" action="" class="d-flex align-items-center w-50">
+              <select name="status" class="form-select shadow-none me-3" aria-label="Status filter" onchange="this.form.submit()">
+                <option value="all" <?php echo ($status_filter === 'all') ? 'selected' : ''; ?>>All</option>
+                <option value="completed" <?php echo ($status_filter === 'completed') ? 'selected' : ''; ?>>Completed</option>
+                <option value="cancelled" <?php echo ($status_filter === 'cancelled') ? 'selected' : ''; ?>>Cancelled</option>
+              </select>
+            </form>
 
             <button class="btn btn-primary me-2" type="button" data-bs-toggle="modal"
               data-bs-target="#addBookingModal">Add</button>
@@ -234,15 +250,15 @@ $bookings = $stmt->fetchAll(PDO::FETCH_ASSOC);
                     <td><?php echo $row['check_in']; ?></td>
                     <td><?php echo $row['check_out']; ?></td>
                     <td>
-                    <span
-                          class="badge 
-                            <?php 
-                              echo ($row['booking_status'] === 'completed') 
-                                ? 'bg-success' 
-                                : (($row['booking_status'] === 'cancelled') ? 'bg-danger' : 'bg-warning text-dark'); 
-                            ?>">
-                          <?php echo $row['booking_status']; ?>
-                    </span>
+                      <span
+                        class="badge 
+                          <?php 
+                            echo ($row['booking_status'] === 'completed') 
+                              ? 'bg-success' 
+                              : (($row['booking_status'] === 'cancelled') ? 'bg-danger' : 'bg-warning text-dark'); 
+                          ?>">
+                        <?php echo $row['booking_status']; ?>
+                      </span>
                     </td>
                     <td>
                       <button class="btn btn-primary me-1" data-bs-toggle="modal" data-bs-target="#confirmModal"
@@ -259,7 +275,6 @@ $bookings = $stmt->fetchAll(PDO::FETCH_ASSOC);
               </tbody>
             </table>
           </div>
-
 
           <!-- Modal for Confirm and Delete -->
           <div class="modal fade" id="confirmModal" tabindex="-1" aria-labelledby="confirmModalLabel"
