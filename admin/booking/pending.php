@@ -152,6 +152,12 @@ $bookings = $stmt->fetchAll(PDO::FETCH_ASSOC);
               </button>
             </div>
 
+                       <select class="form-select shadow-none w-50" aria-label="Default select example">
+                            <option selected>All</option>
+                            <option value="1">Completed</option>
+                            <option value="3">Cancelled</option>
+                        </select>
+
             <button class="btn btn-primary me-2" type="button" data-bs-toggle="modal"
               data-bs-target="#addBookingModal">Add</button>
             <a href="../../admin/history/history.php" class="btn btn-outline-primary" type="button">History</a>
@@ -228,10 +234,15 @@ $bookings = $stmt->fetchAll(PDO::FETCH_ASSOC);
                     <td><?php echo $row['check_in']; ?></td>
                     <td><?php echo $row['check_out']; ?></td>
                     <td>
-                      <span
-                        class="badge <?php echo ($row['booking_status'] === 'completed') ? 'bg-success' : 'bg-warning text-dark'; ?>">
-                        <?php echo $row['booking_status']; ?>
-                      </span>
+                    <span
+                          class="badge 
+                            <?php 
+                              echo ($row['booking_status'] === 'completed') 
+                                ? 'bg-success' 
+                                : (($row['booking_status'] === 'cancelled') ? 'bg-danger' : 'bg-warning text-dark'); 
+                            ?>">
+                          <?php echo $row['booking_status']; ?>
+                    </span>
                     </td>
                     <td>
                       <button class="btn btn-primary me-1" data-bs-toggle="modal" data-bs-target="#confirmModal"
@@ -240,7 +251,6 @@ $bookings = $stmt->fetchAll(PDO::FETCH_ASSOC);
                       <button class="btn btn-danger text-white me-5" data-bs-toggle="modal"
                         data-bs-target="#confirmModal" data-action="cancel" data-id="<?php echo $row['booking_id']; ?>"
                         <?php echo ($row['booking_status'] === 'cancelled') ? 'disabled' : ''; ?>>Cancel</button>
-
                       <button class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#confirmModal"
                         data-action="delete" data-id="<?php echo $row['booking_id']; ?>">Delete</button>
                     </td>

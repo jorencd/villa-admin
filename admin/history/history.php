@@ -171,11 +171,7 @@ $history_entries = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                 <i class="bi bi-search"></i>
                             </button>
                         </div>
-                        <select class="form-select shadow-none w-50" aria-label="Default select example">
-                            <option selected>All</option>
-                            <option value="1">Completed</option>
-                            <option value="3">Cancelled</option>
-                        </select>
+
                     </div>
 
 
