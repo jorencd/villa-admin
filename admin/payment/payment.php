@@ -1,3 +1,20 @@
+<?php
+// Database connection
+include '../database/dbconnect.php';
+
+// Handle "Verify" action
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['confirm_verify_payment'])) {
+  $paymentId = intval($_POST['payment_id']); // Securely retrieve payment_id
+
+  try {
+    // Update payment_status to 'Paid'
+    $stmt = $pdo->prepare("UPDATE payment SET payment_status = 'Paid' WHERE payment_id = ?");
+    $stmt->execute([$paymentId]);
+  } catch (PDOException $e) {
+    // Handle error silently
+  }
+}
+?>
 <!DOCTYPE html>
 <html lang="en">
 
@@ -11,27 +28,19 @@
   <!-- BOOTSTRAP JS -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
-
   <!-- BOOTSTRAP ICONS -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css">
 
   <!-- FONT AWESOME -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
 
-
-  <!-- Chart.js -->
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
-  <!-- CUSTOM CSS -->
-  <link rel="stylesheet" href="../../admin/dashboard/dashboard.css">
-
   <!-- TITLE -->
   <title>Admin - Payments</title>
 </head>
 
 <body>
-  <div class=" container-fluid">
-    <div class=" row">
+  <div class="container-fluid">
+    <div class="row">
       <!-- SIDE NAV -->
       <?php include '../../components/admin-sidebar/sidebar.php'; ?>
 
@@ -41,140 +50,99 @@
         <?php include '../../components/admin-header/header.php'; ?>
         <!-- END HEADER -->
 
-        <!-- MAIN BODY -->
-        <div class="main-body container-fluid pt-5 pt-md-3 mt-5 mt-md-0">
-          <h3 class=" text-center"><i class="fas fa-credit-card"></i> Payments Management</h3>
-          <div class="container d-flex justify-content-between mt-4">
-            <!-- SEARCH -->
-            <form class="d-flex w-50" role="search">
-              <input class="form-control rounded-0 rounded-start shadow-none" type="search" placeholder="Search"
-                aria-label="Search">
-              <button class="btn btn-primary rounded-0 rounded-end" type="submit">
-                <i class="bi bi-search"></i>
-              </button>
-            </form>
+        <div class="container mt-5">
+          <h3 class="text-center"><i class="fas fa-credit-card"></i> Payments Management</h3>
 
-          </div>
-          <div class=" container mt-3">
-            <!-- TABLE -->
-            <div class="table-responsive shadow rounded">
-              <table class="table table-hover table-bordered align-middle mb-0">
-                <thead class="table-dark">
-                  <tr>
-                    <th>Booking ID</th>
-                    <th>User Name</th>
-                    <th>Package Type</th>
-                    <th>Payment Method</th>
-                    <th>Payment Amount</th>
-                    <th>Payment Proof</th>
-                    <th>Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <!-- Row 1 -->
-                  <tr>
-                    <td>001</td>
-                    <td>Orlando Dela Cruz</td>
-                    <td>Essential Room</td>
-                    <td>GCash</td>
-                    <td>$500</td>
-                    <td>GCash Ref: 123456</td>
-                    <td class="d-flex flex-column justify-content-center">
-                      <!-- Verify Button -->
-                      <button class="btn btn-success mb-1" data-bs-toggle="modal" data-bs-target="#verifyModal"
-                        onclick="setModalContent('001', 'Orlando Dela Cruz' 'Essential Room', '$500')">Verify</button>
+          <!-- TABLE -->
+          <div class="table-responsive shadow rounded mt-4">
+            <table class="table table-hover table-bordered align-middle">
+              <thead class="table-dark">
+                <tr>
+                  <th>Payment ID</th>
+                  <th>Booking ID</th>
+                  <th>Payment Status</th>
+                  <th>Total Amount</th>
+                  <th>Payment Method</th>
+                  <th>Payment Date</th>
+                  <th>Payment Proof</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <?php
+                try {
+                  $stmt = $pdo->prepare("SELECT payment_id, booking_id, payment_status, total_amount_paid, payment_method, payment_date, payment_proof_url FROM payment");
+                  $stmt->execute();
+                  $payments = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-                    </td>
-                  </tr>
-                  <!-- Row 2 -->
-                  <tr>
-                    <td>002</td>
-                    <td>Jorence Mendoza</td>
-                    <td>Deluxe Room</td>
-                    <td>Bank Transfer</td>
-                    <td>$400</td>
-                    <td>Bank Ref: 654321</td>
-                    <td class="d-flex flex-column justify-content-center">
-                      <!-- Verify Button -->
-                      <button class="btn btn-success mb-1" data-bs-toggle="modal" data-bs-target="#verifyModal"
-                        onclick="setModalContent('001', 'Orlando Dela Cruz' 'Essential Room', '$500')">Verify</button>
-                    </td>
-                  </tr>
-                  <!-- Row 3 -->
-                  <tr>
-                    <td>003</td>
-                    <td>Dhennis Nizal</td>
-                    <td>Supreme Room</td>
-                    <td>GCash</td>
-                    <td>$500</td>
-                    <td>GCash Ref: 987654</td>
-                    <td class="d-flex flex-column justify-content-center">
-                      <!-- Verify Button -->
-                      <button class="btn btn-success mb-1" data-bs-toggle="modal" data-bs-target="#verifyModal"
-                        onclick="setModalContent('001', 'Orlando Dela Cruz' 'Essential Room', '$500')">Verify</button>
-
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-
-            <!-- VERIFY MODAL -->
-            <div class="modal fade" id="verifyModal" tabindex="-1" aria-labelledby="verifyModalLabel"
-              aria-hidden="true">
-              <div class="modal-dialog modal-dialog-centered">
-                <div class="modal-content">
-                  <div class="modal-header">
-                    <h5 class="modal-title" id="verifyModalLabel">Verify Payment</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                  </div>
-                  <div class="modal-body">
-                    <p><strong>Booking ID:</strong> <span id="modalBookingID">N/A</span></p>
-                    <p><strong>Customer Name:</strong> <span id="modalCustomerName">N/A</span></p>
-                    <p><strong>Room Type:</strong> <span id="modalRoomType">N/A</span></p>
-                    <p><strong>Amount:</strong> <span id="modalAmount">N/A</span></p>
-                  </div>
-                  <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                    <button type="button" class="btn btn-success">Confirm Payment</button>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <!-- PAGINATION -->
-            <div class="d-flex justify-content-between align-items-center mt-3">
-              <p class="mb-0">Showing 1 to 3 of 50 bookings</p>
-              <nav aria-label="Page navigation">
-                <ul class="pagination mb-0">
-                  <li class="page-item disabled">
-                    <a class="page-link" href="#" tabindex="-1">
-                      <i class="bi bi-arrow-left"></i>
-                    </a>
-                  </li>
-                  <li class="page-item active">
-                    <a class="page-link" href="#">1</a>
-                  </li>
-                  <li class="page-item">
-                    <a class="page-link" href="#">2</a>
-                  </li>
-                  <li class="page-item">
-                    <a class="page-link" href="#">3</a>
-                  </li>
-                  <li class="page-item">
-                    <a class="page-link" href="#">
-                      <i class="bi bi-arrow-right"></i>
-                    </a>
-                  </li>
-                </ul>
-              </nav>
-            </div>
-            <br><br><br>
+                  if ($payments) {
+                    foreach ($payments as $row) {
+                      echo "<tr>
+                  <td>" . htmlspecialchars($row['payment_id']) . "</td>
+                  <td>" . htmlspecialchars($row['booking_id']) . "</td>
+                  <td>";
+                      if ($row['payment_status'] === 'Pending') {
+                        echo "<span class='badge bg-warning text-dark'>" . htmlspecialchars($row['payment_status']) . "</span>";
+                      } elseif ($row['payment_status'] === 'Paid') {
+                        echo "<span class='badge bg-success'>" . htmlspecialchars($row['payment_status']) . "</span>";
+                      } else {
+                        echo htmlspecialchars($row['payment_status']);
+                      }
+                      echo "</td>
+                  <td>" . htmlspecialchars($row['total_amount_paid']) . "</td>
+                  <td>" . htmlspecialchars($row['payment_method']) . "</td>
+                  <td>" . htmlspecialchars($row['payment_date']) . "</td>
+                  <td><a href='" . htmlspecialchars($row['payment_proof_url']) . "' target='_blank'>View Proof</a></td>
+                  <td>
+                    <button class='btn btn-success' data-bs-toggle='modal' data-bs-target='#verifyModal' 
+                      onclick=\"setPaymentId('" . htmlspecialchars($row['payment_id']) . "')\" 
+                      " . ($row['payment_status'] === 'Paid' ? 'disabled' : '') . ">Verify</button>
+                  </td>
+              </tr>";
+                    }
+                  } else {
+                    echo "<tr><td colspan='8' class='text-center'>No payments found</td></tr>";
+                  }
+                } catch (PDOException $e) {
+                  echo "<tr><td colspan='8' class='text-center text-danger'>Error: " . htmlspecialchars($e->getMessage()) . "</td></tr>";
+                }
+                ?>
+              </tbody>
+            </table>
           </div>
         </div>
       </div>
     </div>
   </div>
+
+  <!-- MODAL -->
+  <div class="modal fade" id="verifyModal" tabindex="-1" aria-labelledby="verifyModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <form method="post">
+          <div class="modal-header">
+            <h5 class="modal-title" id="verifyModalLabel">Confirm Verification</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            Are you sure you want to mark this payment as <strong>Paid</strong>?
+            <input type="hidden" name="payment_id" id="modalPaymentId">
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+            <button type="submit" name="confirm_verify_payment" class="btn btn-primary">Confirm</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Set payment ID in modal input
+    function setPaymentId(paymentId) {
+      document.getElementById('modalPaymentId').value = paymentId;
+    }
+  </script>
 </body>
 
 </html>

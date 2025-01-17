@@ -160,7 +160,7 @@ $history_entries = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 <div class="main-body container pt-5 pt-md-3 mt-5 mt-md-0">
                     <!-- Heading -->
                     <h3 class="mb-4 text-center"><i class="fa fa-history"></i>
-                        History</h3>
+                        Archive</h3>
 
                     <!-- Search Bar -->
                     <div class="d-flex justify-content-between align-items-center mb-3">

@@ -48,7 +48,7 @@ $current_file = basename($_SERVER['PHP_SELF']);
         <li class="nav-item <?php echo $current_file === 'history.php' ? 'bg-primary' : ''; ?>">
           <a class="nav-link <?php echo $current_file === 'history.php' ? 'active text-light' : ''; ?>"
             href="../../admin/history/history.php">
-            <i class="fa fa-history"></i> History
+            <i class="fa fa-history"></i> Archive
           </a>
         </li>
       </ul>

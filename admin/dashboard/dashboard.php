@@ -150,7 +150,7 @@ $pdo = null;
             <div class="col-12 col-md-4">
               <div class="card border-0 shadow">
                 <div class="card-body px-2 pt-3">
-                  <i class="fas fa-dollar-sign border bg-warning text-dark fs-3"></i>
+                  <i class="fas fa-dollar-sign border bg-warning text-white fs-3"></i>
                   <h6 class="card-subtitle text-body-secondary mb-3">Total Revenue</h6>
                   <!-- Displaying total revenue from PHP -->
                   <h3 class="card-title">₱<?php echo number_format($total_revenue, 2); ?></h3>
