@@ -167,7 +167,7 @@ $totalRevenue = $stmtTotalRevenue->fetch(PDO::FETCH_ASSOC)['total_revenue'];
                 <!-- MAIN BODY -->
                 <div class="main-body container pt-3">
                     <div class="container">
-                        <h3 class="container-title text-center"><i class="fas fa-chart-line"></i> <strong>Daily
+                        <h3 class="container-title text-center"><i class="fas fa-chart-line"></i> <strong>Monthly
                                 Report</strong></h3>
 
                         <div class="row my-4 gy-2">
@@ -186,7 +186,7 @@ $totalRevenue = $stmtTotalRevenue->fetch(PDO::FETCH_ASSOC)['total_revenue'];
                             <!-- Title Section -->
                             <div style="text-align: center; margin-bottom: 30px;">
                                 <h2>Villa Solaria</h2>
-                                <h4>Daily Report</h4>
+                                <h4>Monthly Report</h4>
                             </div>
 
                             <!-- Report Content -->
